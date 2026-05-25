@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Dashboard</title>
+</head>
+<body>
+  <h1>Manage Events</h1>
+
+  <h2>Create Event</h2>
+  <form id="createEventForm">
+    <input type="text" id="title" placeholder="Title" required />
+    <input type="text" id="location" placeholder="Location" required />
+    <input type="date" id="date" required />
+    <input type="text" id="organizer" placeholder="Organizer" required />
+    <button type="submit">Create Event</button>
+  </form>
+
+  <script>
+    document.getElementById("createEventForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const token = localStorage.getItem("token"); // get token from login
+      const res = await fetch("http://localhost:5000/events", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": token
+        },
+        body: JSON.stringify({
+          title: document.getElementById("title").value,
+          location: document.getElementById("location").value,
+          date: document.getElementById("date").value,
+          organizer: document.getElementById("organizer").value
+        })
+      });
+      const data = await res.json();
+      alert("Event created: " + data.title);
+    });
+  </script>
+</body>
+</html>

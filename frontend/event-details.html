@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Event Details</title>
+</head>
+<body>
+  <h1 id="title"></h1>
+  <p id="description"></p>
+  <p id="date"></p>
+  <p id="location"></p>
+
+  <h2>Register</h2>
+  <form id="registerForm">
+    <input type="text" id="userName" placeholder="Your Name" required />
+    <input type="email" id="userEmail" placeholder="Your Email" required />
+    <button type="submit">Register</button>
+  </form>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const eventId = params.get("id");
+
+    async function loadEvent() {
+      const res = await fetch(`http://localhost:5000/events/${eventId}`);
+      const event = await res.json();
+      document.getElementById("title").textContent = event.title;
+      document.getElementById("description").textContent = event.description;
+      document.getElementById("date").textContent = new Date(event.date).toDateString();
+      document.getElementById("location").textContent = event.location;
+    }
+
+    document.getElementById("registerForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const res = await fetch(`http://localhost:5000/registrations/${eventId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userName: document.getElementById("userName").value,
+          userEmail: document.getElementById("userEmail").value
+        })
+      });
+      const data = await res.json();
+      alert("Registered successfully!");
+    });
+
+    loadEvent();
+  </script>
+</body>
+</html>

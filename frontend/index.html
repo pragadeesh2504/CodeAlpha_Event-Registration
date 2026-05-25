@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Event Registration</title>
+</head>
+<body>
+  <h1>Event Registration System</h1>
+
+  <!-- ✅ Event Creation Form (for organizers with token) -->
+  <h2>Create Event</h2>
+  <form id="eventForm">
+    <input type="text" id="title" placeholder="Event Title" required />
+    <input type="text" id="location" placeholder="Location" required />
+    <input type="date" id="date" required />
+    <input type="text" id="organizer" placeholder="Organizer" required />
+    <button type="submit">Create Event</button>
+  </form>
+
+  <!-- ✅ Event List -->
+  <h2>Available Events</h2>
+  <ul id="eventList"></ul>
+
+  <script>
+    // Load all events
+    async function loadEvents() {
+      const res = await fetch("http://localhost:5000/events");
+      const events = await res.json();
+      const list = document.getElementById("eventList");
+      list.innerHTML = "";
+      events.forEach(event => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <strong>${event.title}</strong> - ${event.location} 
+          (${new Date(event.date).toDateString()}) 
+          <a href="event-details.html?id=${event._id}">View Details</a>
+        `;
+        list.appendChild(li);
+      });
+    }
+
+    // Create new event (requires token)
+    document.getElementById("eventForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const token = localStorage.getItem("token"); // get token from login.html
+      if (!token) {
+        alert("You must log in first!");
+        return;
+      }
+
+      const res = await fetch("http://localhost:5000/events", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": token
+        },
+        body: JSON.stringify({
+          title: document.getElementById("title").value,
+          location: document.getElementById("location").value,
+          date: document.getElementById("date").value,
+          organizer: document.getElementById("organizer").value
+        })
+      });
+
+      const data = await res.json();
+      alert("Event created: " + data.title);
+      loadEvents(); // refresh list
+    });
+
+    // Initial load
+    loadEvents();
+  </script>
+</body>
+</html>
